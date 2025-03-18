@@ -213,7 +213,7 @@ namespace SokobanAlexEmard
                     }
 
                     srcRect = new Rectangle(imageIndex * cellSize.Width, 0, cellSize.Width, cellSize.Height);
-                    e.Graphics.DrawImage(graphics, destRect, srcRect, GraphicsUnit.Pixel);
+                    e.Graphics.DrawImage(graphics, srcRect, destRect, GraphicsUnit.Pixel);
                 }
             }
         }
