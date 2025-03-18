@@ -27,5 +27,10 @@ namespace SokobanAlexEmard
         public Point GridPos { get { return gridPos; } set { this.gridPos = value; } }
 
         public string Type { get { return type; } set { type = value; } }
+        public string GetType() { return type; }
+        public void SetType(string type)
+        {
+            this.type = type;
+        }
     }
 }
