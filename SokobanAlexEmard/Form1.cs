@@ -126,7 +126,7 @@ namespace SokobanAlexEmard
 
         private void SetCell(Point point, char c)
         {
-            // workder, workerOnDestination, baggage, baggageOnDestination, destination, blank
+            // worker, workerOnDestination, baggage, baggageOnDestination, destination, blank
             if (c.Equals(' '))
             {
                 gameData[point.X, point.Y] = new GamePieces(point, " ");
