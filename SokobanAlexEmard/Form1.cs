@@ -1,11 +1,22 @@
 /*
-* Name: Alex Emard
-* Class: Grade 11 Coding (DMIC30S)
-* Program Name: Sokoban
-* Due Date:
-* Program Description:
-* Extra Features:
-*/
+ * Name: Alex Emard
+ * Program: Sokoban
+ * Due Date: 
+ * Class: Coding for IDM - P4
+ * 
+ * Program Description:
+ * 
+ * Extra features:
+ *
+ *  Coding Requirements:
+ *  - Menu (line 269)
+ *  - Checkered background using rectangles (line 113)
+ *  - Valid move placement (line 220)
+ *  - Inform if win (line 193)
+ *  - Inform if lost (line 212)
+ *  - Hint (line 292)
+ * 
+ */
 
 
 
