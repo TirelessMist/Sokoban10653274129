@@ -35,6 +35,7 @@ namespace SokobanAlexEmard
         GamePieces[,] savedState;
 
         int DRAW_OFFSET_Y;
+        int BOTTOM_OFFSET_Y;
 
         Size gridSize = new Size();
         Size cellSize = new Size(25, 25);
@@ -43,7 +44,7 @@ namespace SokobanAlexEmard
 
         Point workerLocation = new Point(0, 0);
         int level = 1;
-        int maxLevels = 30;
+        int maxLevels = 5;
 
         int imageIndex = -1;
 
@@ -60,6 +61,11 @@ namespace SokobanAlexEmard
             {
                 DRAW_OFFSET_Y = m.Height;
                 AssignMenuClickEvents(m.Items);
+                break;
+            }
+            foreach (StatusStrip s in this.Controls.OfType<StatusStrip>())
+            {
+                BOTTOM_OFFSET_Y = s.Height;
                 break;
             }
             foreach (ToolStripMenuItem item in fileToolStripMenuItem.DropDownItems)
@@ -119,7 +125,7 @@ namespace SokobanAlexEmard
                         }
                     case "undo":
                         {
-
+                            gameData = savedState;
                             break;
                         }
                     case "openLevel":
@@ -171,13 +177,13 @@ namespace SokobanAlexEmard
 
                 sr.Dispose();
                 sr.Close();
-                this.ClientSize = new Size(cellSize.Width * gridSize.Width, cellSize.Height * gridSize.Height + DRAW_OFFSET_Y);
+                this.ClientSize = new Size(cellSize.Width * gridSize.Width, cellSize.Height * gridSize.Height + DRAW_OFFSET_Y + BOTTOM_OFFSET_Y);
                 this.CenterToScreen();
                 this.Invalidate();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Console.WriteLine("(ReadMap Function) - Error: " + ex.Message);
             }
             ;
         }
@@ -284,33 +290,43 @@ namespace SokobanAlexEmard
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            ReadMap();
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
+            bool hasMoved = false;
+            GamePieces[,] oldGameData = gameData;
             switch (e.KeyCode)
             {
                 case Keys.Up:
-                    {
-                        MoveWorker(0, -1);
-                        break;
-                    }
+                case Keys.W:
+
+                    hasMoved = MoveWorker(0, -1);
+                    break;
+
                 case Keys.Down:
-                    {
-                        MoveWorker(0, 1);
-                        break;
-                    }
+                case Keys.S:
+
+                    hasMoved = MoveWorker(0, 1);
+                    break;
+
                 case Keys.Left:
-                    {
-                        MoveWorker(-1, 0);
-                        break;
-                    }
+                case Keys.A:
+
+                    hasMoved = MoveWorker(-1, 0);
+                    break;
+
                 case Keys.Right:
-                    {
-                        MoveWorker(1, 0);
-                        break;
-                    }
+                case Keys.D:
+
+                    hasMoved = MoveWorker(1, 0);
+                    break;
+
+            }
+            if (hasMoved)
+            {
+                savedState = oldGameData;
+                Invalidate();
             }
         }
         private bool MoveWorker(int dirX, int dirY)
@@ -390,7 +406,6 @@ namespace SokobanAlexEmard
                 }
             }
 
-            Invalidate();
             return validMove;
 
 
