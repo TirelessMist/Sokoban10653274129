@@ -40,11 +40,13 @@ namespace SokobanAlexEmard
 
         Bitmap graphics = new Bitmap(typeof(Form1), "SokubanCells.png");
 
-        Point workerLocation = new Point(0, 0);
+        Point workerLocation = new Point(-1, -1);
         int level = 1;
+        int maxLevels = 30;
 
         int imageIndex = -1;
 
+        static string PROGRAM_NAME = "Sokoban";
 
 
         public Form1()
@@ -57,6 +59,29 @@ namespace SokobanAlexEmard
                 AssignMenuClickEvents(m.Items);
                 break;
             }
+            foreach (ToolStripMenuItem item in fileToolStripMenuItem.DropDownItems)
+            {
+                if (item.Tag != null && item.Tag.Equals("openLevel"))
+                {
+                    for (int i = 1; i <= maxLevels; i++)
+                    {
+                        ToolStripMenuItem levelItem = new ToolStripMenuItem("Level " + i);
+                        levelItem.Tag = i;
+                        levelItem.Click += new EventHandler(OpenLevel);
+                        item.DropDownItems.Add(levelItem);
+                    }
+                }
+            }
+
+            this.Text = $"{PROGRAM_NAME} - Level " + level;
+        }
+
+        private void OpenLevel(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            level = (int)item.Tag;
+            this.Text = $"{PROGRAM_NAME} - Level " + level;
+            ReadMap();
         }
         private void AssignMenuClickEvents(ToolStripItemCollection menuItems)
         {
@@ -92,6 +117,10 @@ namespace SokobanAlexEmard
                     case "undo":
                         {
 
+                            break;
+                        }
+                    case "openLevel":
+                        {
                             break;
                         }
                 }
