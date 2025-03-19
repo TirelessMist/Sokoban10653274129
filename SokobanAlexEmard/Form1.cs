@@ -54,27 +54,47 @@ namespace SokobanAlexEmard
             foreach (MenuStrip m in this.Controls.OfType<MenuStrip>())
             {
                 DRAW_OFFSET_Y = m.Height;
+                AssignMenuClickEvents(m.Items);
                 break;
             }
         }
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void AssignMenuClickEvents(ToolStripItemCollection menuItems)
         {
-            switch (e.ClickedItem.Tag)
+            foreach (ToolStripItem item in menuItems)
             {
-                case "restart":
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Click += menuStrip1_ItemClicked;
+                    if (menuItem.DropDownItems.Count > 0)
                     {
-                        break;
+                        AssignMenuClickEvents(menuItem.DropDownItems);
                     }
-                case "quit":
-                    {
-                        Application.Exit();
-                        break;
-                    }
-                case "undo":
-                    {
-                        break;
-                    }
+                }
+            }
+        }
+
+        private void menuStrip1_ItemClicked(object sender, EventArgs e)
+        {
+            if (sender is ToolStripMenuItem t)
+            {
+                switch (t.Tag)
+                {
+                    case "restart":
+                        {
+
+                            break;
+                        }
+                    case "quit":
+                        {
+                            Application.Exit();
+                            break;
+                        }
+                    case "undo":
+                        {
+
+                            break;
+                        }
+                }
             }
         }
 
@@ -93,11 +113,11 @@ namespace SokobanAlexEmard
                     lineOfText = sr.ReadLine();
                     if (lineOfText[0] == '_') continue;
                     if (lineOfText[0] == '@' && lineOfText[1] == Convert.ToChar(level.ToString())) // if you have more than 9 levels, you have to modify this code to check for more than just the next char after '@'.
-                    {
+                    { // if currently-scanned level is same as level we want to load, load it
                         lineOfText = sr.ReadLine();
                         string[] data = lineOfText.Split(',');
-                        gridSize.Width = Convert.ToInt32(data[0]);
-                        gridSize.Height = Convert.ToInt32(data[1]);
+                        gridSize.Width = Convert.ToInt16(data[0]);
+                        gridSize.Height = Convert.ToInt16(data[1]);
                         gameData = new GamePieces[gridSize.Width, gridSize.Height];
 
                         for (int row = 0; row < gridSize.Height; row++)
@@ -111,7 +131,6 @@ namespace SokobanAlexEmard
                     }
                 }
 
-
                 sr.Dispose();
                 sr.Close();
                 this.ClientSize = new Size(cellSize.Width * gridSize.Width, cellSize.Height * gridSize.Height + DRAW_OFFSET_Y);
@@ -121,7 +140,8 @@ namespace SokobanAlexEmard
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message);
-            };
+            }
+            ;
         }
 
         private void SetCell(Point point, char c)
@@ -175,6 +195,10 @@ namespace SokobanAlexEmard
             {
                 for (int j = 0; j < gridSize.Height; j++)//row
                 {
+                    if (gameData[i, j].GetType().Equals(" "))
+                    {
+                        continue; // skip drawing blank cells. Continue makes it skip over the rest of the code in the loop and go to the next iteration.
+                    }
                     Rectangle destRect = new Rectangle(i * cellSize.Width, j * cellSize.Height, cellSize.Width, cellSize.Height);
                     Rectangle srcRect;
 
@@ -213,7 +237,8 @@ namespace SokobanAlexEmard
                     }
 
                     srcRect = new Rectangle(imageIndex * cellSize.Width, 0, cellSize.Width, cellSize.Height);
-                    e.Graphics.DrawImage(graphics, srcRect, destRect, GraphicsUnit.Pixel);
+                    e.Graphics.DrawImage(graphics, destRect, srcRect, GraphicsUnit.Pixel);
+
                 }
             }
         }
