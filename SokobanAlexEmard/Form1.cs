@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,13 +41,15 @@ namespace SokobanAlexEmard
 
         Bitmap graphics = new Bitmap(typeof(Form1), "SokubanCells.png");
 
-        Point workerLocation = new Point(-1, -1);
+        Point workerLocation = new Point(0, 0);
         int level = 1;
         int maxLevels = 30;
 
         int imageIndex = -1;
 
         static string PROGRAM_NAME = "Sokoban";
+
+        int baggageCount;
 
 
         public Form1()
@@ -131,7 +134,7 @@ namespace SokobanAlexEmard
         {
             // Read the text file, create and fill the gameData array.
             string lineOfText = null;
-
+            baggageCount = 0;
             try
             {
                 StreamReader sr = new StreamReader("../../sokoban_maps.txt");
@@ -154,11 +157,17 @@ namespace SokobanAlexEmard
                             lineOfText = sr.ReadLine();
                             for (int col = 0; col < lineOfText.Length; col++)
                             {
+                                if (lineOfText[col] == 'b' || lineOfText[col] == 'B')
+                                {
+                                    baggageCount++;
+                                }
                                 SetCell(new Point(col, row), lineOfText[col]);
+                                scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
                             }
                         }
                     }
                 }
+
 
                 sr.Dispose();
                 sr.Close();
@@ -187,6 +196,7 @@ namespace SokobanAlexEmard
             else if (c.Equals('w'))
             {
                 gameData[point.X, point.Y] = new GamePieces(point, "worker");
+                workerLocation = point;
             }
             else if (c.Equals('W'))
             {
@@ -275,6 +285,148 @@ namespace SokobanAlexEmard
         private void Form1_Load(object sender, EventArgs e)
         {
             ReadMap();
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Up:
+                    {
+                        MoveWorker(0, -1);
+                        break;
+                    }
+                case Keys.Down:
+                    {
+                        MoveWorker(0, 1);
+                        break;
+                    }
+                case Keys.Left:
+                    {
+                        MoveWorker(-1, 0);
+                        break;
+                    }
+                case Keys.Right:
+                    {
+                        MoveWorker(1, 0);
+                        break;
+                    }
+            }
+        }
+        private bool MoveWorker(int dirX, int dirY)
+        {
+            bool validMove = false;
+            int x = workerLocation.X;
+            int y = workerLocation.Y;
+
+            if (gameData[x + dirX, y + dirY].GetType() == " ") //if worker is moving to blank, set type to worker
+            {
+                gameData[x + dirX, y + dirY].SetType("worker");
+                WorkerCameFrom();
+                workerLocation.X += dirX;
+                workerLocation.Y += dirY;
+                validMove = true;
+            }
+            else if (gameData[x + dirX, y + dirY].GetType() == "destination") //if worker is moving to destination, set type to workerOnDestination
+            {
+                gameData[x + dirX, y + dirY].SetType("workerOnDestination");
+                WorkerCameFrom();
+                workerLocation.X += dirX;
+                workerLocation.Y += dirY;
+                validMove = true;
+            }
+            else if (gameData[x + dirX, y + dirY].GetType() == "baggage")
+            {
+
+                int bX = x + dirX;
+                int bY = y + dirY;
+                if (gameData[bX + dirX, bY + dirY].GetType() == " ")
+                {
+                    gameData[x + dirX, y + dirY].SetType("worker");
+                    WorkerCameFrom();
+                    BaggageCameFrom(bX, bY);
+                    gameData[bX + dirX, bY + dirY].SetType("baggage");
+                    workerLocation.X += dirX;
+                    workerLocation.Y += dirY;
+                    validMove = true;
+                }
+                else if (gameData[bX + dirX, bY + dirY].GetType() == "destination")
+                {
+                    gameData[bX, bY].SetType(" ");
+                    gameData[bX + dirX, bY + dirY].SetType(" ");
+                    gameData[x + dirX, y + dirY].SetType("worker");
+                    WorkerCameFrom();
+                    workerLocation.X += dirX;
+                    workerLocation.Y += dirY;
+                    Score();
+                    validMove = true;
+                }
+
+            }
+            else if (gameData[x + dirX, y + dirY].GetType() == "baggageOnDestination")
+            {
+                int bX = x + dirX;
+                int bY = y + dirY;
+                if (gameData[bX + dirX, bY + dirY].GetType() == " ")
+                {
+                    gameData[x + dirX, y + dirY].SetType("worker");
+                    WorkerCameFrom();
+                    BaggageCameFrom(bX, bY);
+                    gameData[bX + dirX, bY + dirY].SetType("baggage");
+                    workerLocation.X += dirX;
+                    workerLocation.Y += dirY;
+                    validMove = true;
+                }
+                else if (gameData[bX + dirX, bY + dirY].GetType() == "destination")
+                {
+                    gameData[bX, bY].SetType(" ");
+                    gameData[bX + dirX, bY + dirY].SetType(" ");
+                    gameData[x + dirX, y + dirY].SetType("worker");
+                    WorkerCameFrom();
+                    workerLocation.X += dirX;
+                    workerLocation.Y += dirY;
+                    Score();
+                    validMove = true;
+                }
+            }
+
+            Invalidate();
+            return validMove;
+
+
+        }
+        private void WorkerCameFrom()
+        {
+            if (gameData[workerLocation.X, workerLocation.Y].GetType() == "worker") // if worker came from worker
+            {
+                gameData[workerLocation.X, workerLocation.Y].SetType(" ");
+            }
+            else if (gameData[workerLocation.X, workerLocation.Y].GetType() == "workerOnDestination")
+            {
+                gameData[workerLocation.X, workerLocation.Y].SetType("destination");
+            }
+        }
+        private void BaggageCameFrom(int bX, int bY)
+        {
+            if (gameData[bX, bY].GetType() == "baggage") // if worker came from worker
+            {
+                gameData[bX, bY].SetType("worker");
+            }
+            else if (gameData[bX, bY].GetType() == "baggageOnDestination")
+            {
+                gameData[bX, bY].SetType("workerOnDestination");
+            }
+        }
+        private void Score()
+        {
+            if (baggageCount - 1 == 0)
+            {
+                baggageCount--;
+                scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
+                MessageBox.Show("You Win!");
+            }
+            baggageCount--;
+            scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
         }
     }
 }
