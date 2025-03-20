@@ -19,10 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -51,6 +53,14 @@ namespace SokobanAlexEmard
         static string PROGRAM_NAME = "Sokoban";
 
         int baggageCount;
+
+        bool isControlDown;
+        bool isShiftDown;
+
+        Stack<GamePieces[,]> savedStateHistory = new Stack<GamePieces[,]>(); // first in, last off data structure type
+        Stack<Point> savedWorkerLocation = new Stack<Point>();
+        Stack<GamePieces[,]> savedStateRedo = new Stack<GamePieces[,]>();
+        Stack<Point> savedWorkerLocRedo = new Stack<Point>();
 
 
         public Form1()
@@ -125,7 +135,12 @@ namespace SokobanAlexEmard
                         }
                     case "undo":
                         {
-                            gameData = savedState;
+                            UndoMove();
+                            break;
+                        }
+                    case "redo":
+                        {
+                            RedoMove();
                             break;
                         }
                     case "openLevel":
@@ -288,14 +303,10 @@ namespace SokobanAlexEmard
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-        }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             bool hasMoved = false;
-            GamePieces[,] oldGameData = gameData;
             switch (e.KeyCode)
             {
                 case Keys.Up:
@@ -321,16 +332,55 @@ namespace SokobanAlexEmard
 
                     hasMoved = MoveWorker(1, 0);
                     break;
+                case Keys.Z:
+                    if (isControlDown && isShiftDown)
+                    {
+                        Console.WriteLine("Redo Move");
+                    }
+                    else if (isControlDown && !isShiftDown)
+                    {
+                        Console.WriteLine("Undo Move");
+                        UndoMove();
+                    }
+                    break;
+                case Keys.Y:
+                    if (isControlDown)
+                    {
+                        Console.WriteLine("Redo Move");
+                    }
+                    break;
+                case Keys.ControlKey:
+                    {
+                        isControlDown = true;
+                        break;
+                    }
+                case Keys.ShiftKey:
+                    {
+                        isShiftDown = true;
+                        break;
+                    }
 
             }
             if (hasMoved)
             {
-                savedState = oldGameData;
                 Invalidate();
+            }
+        }
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.ControlKey:
+                    isControlDown = false;
+                    break;
+                case Keys.ShiftKey:
+                    isShiftDown = false;
+                    break;
             }
         }
         private bool MoveWorker(int dirX, int dirY)
         {
+            SaveForUndo();
             bool validMove = false;
             int x = workerLocation.X;
             int y = workerLocation.Y;
@@ -443,5 +493,79 @@ namespace SokobanAlexEmard
             baggageCount--;
             scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
         }
+
+        private void Form1_HelpButtonClicked(object sender, CancelEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("chrome.exe", "https://www.google.com"));
+        }
+
+        private void SaveForUndo()
+        {
+            GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
+            Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
+            for (int i = 0; i < gridSize.Width; i++)
+            {
+                for (int j = 0; j < gridSize.Height; j++)
+                {
+                    saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                }
+            }
+            savedStateHistory.Push(saveData);
+            savedWorkerLocation.Push(saveWorkerLoc);
+        }
+
+        private void UndoMove()
+        {
+            if (savedStateHistory.Count > 0)
+            {
+                GamePieces[,] savedState = savedStateHistory.Pop();
+                for (int i = 0; i < gridSize.Width; i++)
+                {
+                    for (int j = 0; j < gridSize.Height; j++)
+                    {
+                        gameData[i, j].SetType(savedState[i, j].GetType());
+                    }
+                }
+                SaveForRedo();
+                workerLocation = savedWorkerLocation.Pop();
+                Invalidate();
+            }
+        }
+
+        private void RedoMove()
+        {
+            if (savedStateRedo.Count > 0)
+            {
+
+                GamePieces[,] savedState = savedStateRedo.Pop();
+                for (int i = 0; i < gridSize.Width; i++)
+                {
+                    for (int j = 0; j < gridSize.Height; j++)
+                    {
+                        gameData[i, j].SetType(savedState[i, j].GetType());
+                    }
+                }
+                SaveForUndo();
+                workerLocation = savedWorkerLocation.Pop();
+                Invalidate();
+            }
+        }
+
+        private void SaveForRedo()
+        {
+            GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
+            Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
+            for (int i = 0; i < gridSize.Width; i++)
+            {
+                for (int j = 0; j < gridSize.Height; j++)
+                {
+                    saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                }
+            }
+            savedStateRedo.Push(saveData);
+            savedWorkerLocRedo.Push(saveWorkerLoc);
+        }
+
+
     }
 }
