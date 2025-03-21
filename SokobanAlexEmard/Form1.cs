@@ -39,6 +39,8 @@ namespace SokobanAlexEmard
         int DRAW_OFFSET_Y;
         int BOTTOM_OFFSET_Y;
 
+        int BORDER_SIZE;
+
         Size gridSize = new Size();
         Size cellSize = new Size(25, 25);
 
@@ -47,26 +49,27 @@ namespace SokobanAlexEmard
         Point workerLocation = new Point(0, 0);
         int level = 1;
         int maxLevels = 5;
+        int boxesLeft;
 
         int imageIndex = -1;
 
         static string PROGRAM_NAME = "Sokoban";
-
-        int baggageCount;
 
         bool isControlDown;
         bool isShiftDown;
 
         Stack<GamePieces[,]> savedStateHistory = new Stack<GamePieces[,]>(); // first in, last off data structure type
         Stack<Point> savedWorkerLocation = new Stack<Point>();
+        Stack<int> savedBoxesLeft = new Stack<int>();
         Stack<GamePieces[,]> savedStateRedo = new Stack<GamePieces[,]>();
         Stack<Point> savedWorkerLocRedo = new Stack<Point>();
+        Stack<int> savedBoxesLeftRedo = new Stack<int>();
 
 
         public Form1()
         {
             InitializeComponent();
-
+            BORDER_SIZE = 100;
             foreach (MenuStrip m in this.Controls.OfType<MenuStrip>())
             {
                 DRAW_OFFSET_Y = m.Height;
@@ -125,7 +128,7 @@ namespace SokobanAlexEmard
                 {
                     case "restart":
                         {
-
+                            ReadMap();
                             break;
                         }
                     case "quit":
@@ -143,19 +146,21 @@ namespace SokobanAlexEmard
                             RedoMove();
                             break;
                         }
-                    case "openLevel":
-                        {
-                            break;
-                        }
                 }
             }
         }
 
         private void ReadMap()
         {
+            savedStateHistory.Clear();
+            savedWorkerLocation.Clear();
+            savedBoxesLeft.Clear();
+            savedStateRedo.Clear();
+            savedWorkerLocRedo.Clear();
+            savedBoxesLeftRedo.Clear();
             // Read the text file, create and fill the gameData array.
             string lineOfText = null;
-            baggageCount = 0;
+            boxesLeft = 0;
             try
             {
                 StreamReader sr = new StreamReader("../../sokoban_maps.txt");
@@ -180,19 +185,20 @@ namespace SokobanAlexEmard
                             {
                                 if (lineOfText[col] == 'b' || lineOfText[col] == 'B')
                                 {
-                                    baggageCount++;
+                                    boxesLeft++;
                                 }
                                 SetCell(new Point(col, row), lineOfText[col]);
-                                scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
+                                scoreToolStripStatusLabel.Text = "Score: " + boxesLeft;
                             }
                         }
                     }
                 }
 
 
+                UpdateScore();
                 sr.Dispose();
                 sr.Close();
-                this.ClientSize = new Size(cellSize.Width * gridSize.Width, cellSize.Height * gridSize.Height + DRAW_OFFSET_Y + BOTTOM_OFFSET_Y);
+                this.ClientSize = new Size(cellSize.Width * gridSize.Width + BORDER_SIZE, cellSize.Height * gridSize.Height + DRAW_OFFSET_Y + BOTTOM_OFFSET_Y + BORDER_SIZE);
                 this.CenterToScreen();
                 this.Invalidate();
             }
@@ -222,6 +228,7 @@ namespace SokobanAlexEmard
             else if (c.Equals('W'))
             {
                 gameData[point.X, point.Y] = new GamePieces(point, "workerOnDestination");
+                workerLocation = point;
             }
             else if (c.Equals('b'))
             {
@@ -243,11 +250,11 @@ namespace SokobanAlexEmard
 
             for (int i = 0; i < gridSize.Width; i++) // vertical lines
             {
-                e.Graphics.DrawLine(Pens.Black, i * cellSize.Width, 0, i * cellSize.Width, ClientRectangle.Bottom);
+                e.Graphics.DrawLine(Pens.Black, i * cellSize.Width + BORDER_SIZE, 0 + BORDER_SIZE, i * cellSize.Width + BORDER_SIZE, ClientRectangle.Bottom + BORDER_SIZE);
             }
             for (int i = 0; i < gridSize.Height; i++) // horizontal lines
             {
-                e.Graphics.DrawLine(Pens.Black, 0, i * cellSize.Height, ClientRectangle.Right, i * cellSize.Height);
+                e.Graphics.DrawLine(Pens.Black, 0 + BORDER_SIZE, i * cellSize.Height + BORDER_SIZE, ClientRectangle.Right + BORDER_SIZE, i * cellSize.Height + BORDER_SIZE);
             }
 
             // Draw graphics to the screen.
@@ -255,11 +262,11 @@ namespace SokobanAlexEmard
             {
                 for (int j = 0; j < gridSize.Height; j++)//row
                 {
-                    if (gameData[i, j].GetType().Equals(" "))
+                    if (gameData[i, j].GetType().Equals(" ")) // fix code to support non-rectangular maps
                     {
                         continue; // skip drawing blank cells. Continue makes it skip over the rest of the code in the loop and go to the next iteration.
                     }
-                    Rectangle destRect = new Rectangle(i * cellSize.Width, j * cellSize.Height, cellSize.Width, cellSize.Height);
+                    Rectangle destRect = new Rectangle(i * cellSize.Width + BORDER_SIZE, j * cellSize.Height + BORDER_SIZE, cellSize.Width, cellSize.Height);
                     Rectangle srcRect;
 
                     switch (gameData[i, j].GetType())
@@ -335,18 +342,17 @@ namespace SokobanAlexEmard
                 case Keys.Z:
                     if (isControlDown && isShiftDown)
                     {
-                        Console.WriteLine("Redo Move");
+                        RedoMove();
                     }
                     else if (isControlDown && !isShiftDown)
                     {
-                        Console.WriteLine("Undo Move");
                         UndoMove();
                     }
                     break;
                 case Keys.Y:
                     if (isControlDown)
                     {
-                        Console.WriteLine("Redo Move");
+                        RedoMove();
                     }
                     break;
                 case Keys.ControlKey:
@@ -484,14 +490,18 @@ namespace SokobanAlexEmard
         }
         private void Score()
         {
-            if (baggageCount - 1 == 0)
+            if (boxesLeft - 1 == 0)
             {
-                baggageCount--;
-                scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
-                MessageBox.Show("You Win!");
+                boxesLeft--;
+                UpdateScore();
+                EndGame("win");
             }
-            baggageCount--;
-            scoreToolStripStatusLabel.Text = "Score: " + baggageCount;
+            else
+            {
+                boxesLeft--;
+                UpdateScore();
+            }
+            UpdateScore();
         }
 
         private void Form1_HelpButtonClicked(object sender, CancelEventArgs e)
@@ -503,6 +513,7 @@ namespace SokobanAlexEmard
         {
             GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
             Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
+            int saveScore = boxesLeft;
             for (int i = 0; i < gridSize.Width; i++)
             {
                 for (int j = 0; j < gridSize.Height; j++)
@@ -512,12 +523,14 @@ namespace SokobanAlexEmard
             }
             savedStateHistory.Push(saveData);
             savedWorkerLocation.Push(saveWorkerLoc);
+            savedBoxesLeft.Push(saveScore);
         }
 
         private void UndoMove()
         {
             if (savedStateHistory.Count > 0)
             {
+                SaveForRedo();
                 GamePieces[,] savedState = savedStateHistory.Pop();
                 for (int i = 0; i < gridSize.Width; i++)
                 {
@@ -526,35 +539,17 @@ namespace SokobanAlexEmard
                         gameData[i, j].SetType(savedState[i, j].GetType());
                     }
                 }
-                SaveForRedo();
                 workerLocation = savedWorkerLocation.Pop();
+                boxesLeft = savedBoxesLeft.Pop();
+                UpdateScore();
                 Invalidate();
             }
         }
-
-        private void RedoMove()
-        {
-            if (savedStateRedo.Count > 0)
-            {
-
-                GamePieces[,] savedState = savedStateRedo.Pop();
-                for (int i = 0; i < gridSize.Width; i++)
-                {
-                    for (int j = 0; j < gridSize.Height; j++)
-                    {
-                        gameData[i, j].SetType(savedState[i, j].GetType());
-                    }
-                }
-                SaveForUndo();
-                workerLocation = savedWorkerLocation.Pop();
-                Invalidate();
-            }
-        }
-
         private void SaveForRedo()
         {
             GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
             Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
+            int saveScore = boxesLeft;
             for (int i = 0; i < gridSize.Width; i++)
             {
                 for (int j = 0; j < gridSize.Height; j++)
@@ -564,8 +559,66 @@ namespace SokobanAlexEmard
             }
             savedStateRedo.Push(saveData);
             savedWorkerLocRedo.Push(saveWorkerLoc);
+            savedBoxesLeftRedo.Push(saveScore);
         }
+        private void RedoMove()
+        {
+            if (savedStateRedo.Count > 0)
+            {
+                SaveForUndo();
+                GamePieces[,] savedState = savedStateRedo.Pop();
+                for (int i = 0; i < gridSize.Width; i++)
+                {
+                    for (int j = 0; j < gridSize.Height; j++)
+                    {
+                        gameData[i, j].SetType(savedState[i, j].GetType());
+                    }
+                }
+                workerLocation = savedWorkerLocRedo.Pop();
+                boxesLeft = savedBoxesLeftRedo.Pop();
+                UpdateScore();
+                Invalidate();
+            }
+        }
+        private void UpdateScore()
+        {
+            scoreToolStripStatusLabel.Text = "Boxes Left: " + boxesLeft;
+        }
+        private void EndGame(string reason)
+        {
+            switch (reason)
+            {
+                case "win":
+                    {
+                        break;
+                    }
+                case "lose":
+                    {
+                        break;
+                    }
+            }
+            ShowEndDialog(reason);
+        }
+        private void ShowEndDialog(string reason)
+        {
+            endScreenTableLayoutPanel.Visible = true;
+            endScreenLevelNoLabel.Text = "Level " + level;
+            switch (reason)
+            {
+                case "win":
+                    {
+                        endScreenTitleLabel.Text = "You Win!";
+                        nextLevelButton.Enabled = true;
+                        break;
+                    }
+                case "lose":
+                    {
+                        endScreenTitleLabel.Text = "You Lost!";
+                        nextLevelButton.Enabled = false;
+                        break;
+                    }
+            }
 
-
+        }
     }
 }

@@ -39,8 +39,17 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.scoreToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.endScreenTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.mainMenuButton = new System.Windows.Forms.Button();
+            this.restartButton = new System.Windows.Forms.Button();
+            this.nextLevelButton = new System.Windows.Forms.Button();
+            this.endScreenTitleLabel = new System.Windows.Forms.Label();
+            this.endScreenLevelNoLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.endScreenTableLayoutPanel.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -122,14 +131,119 @@
             // scoreToolStripStatusLabel
             // 
             this.scoreToolStripStatusLabel.Name = "scoreToolStripStatusLabel";
-            this.scoreToolStripStatusLabel.Size = new System.Drawing.Size(36, 17);
-            this.scoreToolStripStatusLabel.Text = "Score";
+            this.scoreToolStripStatusLabel.Size = new System.Drawing.Size(227, 17);
+            this.scoreToolStripStatusLabel.Text = "Load a level in File > Open Level > Level #";
+            // 
+            // endScreenTableLayoutPanel
+            // 
+            this.endScreenTableLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.endScreenTableLayoutPanel.ColumnCount = 1;
+            this.endScreenTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.endScreenTableLayoutPanel.Controls.Add(this.tableLayoutPanel2, 0, 2);
+            this.endScreenTableLayoutPanel.Controls.Add(this.endScreenTitleLabel, 0, 0);
+            this.endScreenTableLayoutPanel.Controls.Add(this.endScreenLevelNoLabel, 0, 1);
+            this.endScreenTableLayoutPanel.Location = new System.Drawing.Point(300, 140);
+            this.endScreenTableLayoutPanel.Name = "endScreenTableLayoutPanel";
+            this.endScreenTableLayoutPanel.RowCount = 3;
+            this.endScreenTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 35F));
+            this.endScreenTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 35F));
+            this.endScreenTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.endScreenTableLayoutPanel.Size = new System.Drawing.Size(200, 170);
+            this.endScreenTableLayoutPanel.TabIndex = 2;
+            this.endScreenTableLayoutPanel.Visible = false;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 3;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33555F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33223F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33223F));
+            this.tableLayoutPanel2.Controls.Add(this.mainMenuButton, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.restartButton, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.nextLevelButton, 2, 0);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 121);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 1;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(194, 46);
+            this.tableLayoutPanel2.TabIndex = 0;
+            // 
+            // mainMenuButton
+            // 
+            this.mainMenuButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainMenuButton.Location = new System.Drawing.Point(0, 0);
+            this.mainMenuButton.Margin = new System.Windows.Forms.Padding(0);
+            this.mainMenuButton.Name = "mainMenuButton";
+            this.mainMenuButton.Size = new System.Drawing.Size(64, 46);
+            this.mainMenuButton.TabIndex = 0;
+            this.mainMenuButton.Text = "mainMenuButton";
+            this.mainMenuButton.UseVisualStyleBackColor = true;
+            // 
+            // restartButton
+            // 
+            this.restartButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.restartButton.Location = new System.Drawing.Point(64, 0);
+            this.restartButton.Margin = new System.Windows.Forms.Padding(0);
+            this.restartButton.Name = "restartButton";
+            this.restartButton.Size = new System.Drawing.Size(64, 46);
+            this.restartButton.TabIndex = 0;
+            this.restartButton.Text = "restartButton";
+            this.restartButton.UseVisualStyleBackColor = true;
+            // 
+            // nextLevelButton
+            // 
+            this.nextLevelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.nextLevelButton.Location = new System.Drawing.Point(128, 0);
+            this.nextLevelButton.Margin = new System.Windows.Forms.Padding(0);
+            this.nextLevelButton.Name = "nextLevelButton";
+            this.nextLevelButton.Size = new System.Drawing.Size(66, 46);
+            this.nextLevelButton.TabIndex = 0;
+            this.nextLevelButton.Text = "nextLevelButton";
+            this.nextLevelButton.UseVisualStyleBackColor = true;
+            // 
+            // endScreenTitleLabel
+            // 
+            this.endScreenTitleLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.endScreenTitleLabel.AutoSize = true;
+            this.endScreenTitleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.endScreenTitleLabel.Location = new System.Drawing.Point(3, 0);
+            this.endScreenTitleLabel.Name = "endScreenTitleLabel";
+            this.endScreenTitleLabel.Size = new System.Drawing.Size(194, 59);
+            this.endScreenTitleLabel.TabIndex = 1;
+            this.endScreenTitleLabel.Text = "You Win!";
+            this.endScreenTitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // endScreenLevelNoLabel
+            // 
+            this.endScreenLevelNoLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.endScreenLevelNoLabel.AutoSize = true;
+            this.endScreenLevelNoLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.endScreenLevelNoLabel.Location = new System.Drawing.Point(0, 59);
+            this.endScreenLevelNoLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.endScreenLevelNoLabel.Name = "endScreenLevelNoLabel";
+            this.endScreenLevelNoLabel.Size = new System.Drawing.Size(200, 59);
+            this.endScreenLevelNoLabel.TabIndex = 1;
+            this.endScreenLevelNoLabel.Text = "Level #";
+            this.endScreenLevelNoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.endScreenTableLayoutPanel);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
@@ -149,6 +263,9 @@
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.endScreenTableLayoutPanel.ResumeLayout(false);
+            this.endScreenTableLayoutPanel.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -166,6 +283,13 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel scoreToolStripStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.TableLayoutPanel endScreenTableLayoutPanel;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Button mainMenuButton;
+        private System.Windows.Forms.Button restartButton;
+        private System.Windows.Forms.Button nextLevelButton;
+        private System.Windows.Forms.Label endScreenTitleLabel;
+        private System.Windows.Forms.Label endScreenLevelNoLabel;
     }
 }
 
