@@ -122,8 +122,8 @@
             // scoreToolStripStatusLabel
             // 
             this.scoreToolStripStatusLabel.Name = "scoreToolStripStatusLabel";
-            this.scoreToolStripStatusLabel.Size = new System.Drawing.Size(36, 17);
-            this.scoreToolStripStatusLabel.Text = "Score";
+            this.scoreToolStripStatusLabel.Size = new System.Drawing.Size(227, 17);
+            this.scoreToolStripStatusLabel.Text = "Load a level in File > Open Level > Level #";
             // 
             // Form1
             // 
