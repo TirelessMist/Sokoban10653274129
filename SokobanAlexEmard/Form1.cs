@@ -47,9 +47,11 @@ namespace SokobanAlexEmard
         Bitmap graphics = new Bitmap(typeof(Form1), "SokubanCells.png");
 
         Point workerLocation = new Point(0, 0);
-        int level = 1;
-        int maxLevels = 5;
+        int level = 269;
+        int maxLevels = 500;
         int boxesLeft;
+
+        int movesCounter;
 
         int imageIndex = -1;
 
@@ -61,9 +63,12 @@ namespace SokobanAlexEmard
         Stack<GamePieces[,]> savedStateHistory = new Stack<GamePieces[,]>(); // first in, last off data structure type
         Stack<Point> savedWorkerLocation = new Stack<Point>();
         Stack<int> savedBoxesLeft = new Stack<int>();
+        Stack<int> movesCounterHistory = new Stack<int>();
+
         Stack<GamePieces[,]> savedStateRedo = new Stack<GamePieces[,]>();
         Stack<Point> savedWorkerLocRedo = new Stack<Point>();
         Stack<int> savedBoxesLeftRedo = new Stack<int>();
+        Stack<int> movesCounterRedo = new Stack<int>();
 
 
         public Form1()
@@ -119,6 +124,12 @@ namespace SokobanAlexEmard
                 }
             }
         }
+        private void RestartGame()
+        {
+            ReadMap();
+            movesCounter = 0;
+            this.Focus();
+        }
 
         private void menuStrip1_ItemClicked(object sender, EventArgs e)
         {
@@ -128,7 +139,7 @@ namespace SokobanAlexEmard
                 {
                     case "restart":
                         {
-                            ReadMap();
+                            RestartGame();
                             break;
                         }
                     case "quit":
@@ -158,6 +169,7 @@ namespace SokobanAlexEmard
             savedStateRedo.Clear();
             savedWorkerLocRedo.Clear();
             savedBoxesLeftRedo.Clear();
+            movesCounter = 0;
             // Read the text file, create and fill the gameData array.
             string lineOfText = null;
             boxesLeft = 0;
@@ -168,9 +180,9 @@ namespace SokobanAlexEmard
 
                 while (!sr.EndOfStream) // runs until StreamReader reaches end of file
                 {
-                    lineOfText = sr.ReadLine();
+                    lineOfText = sr.ReadLine(); //each index of lineOfText is a single char of that line
                     if (lineOfText[0] == '_') continue;
-                    if (lineOfText[0] == '@' && lineOfText[1] == Convert.ToChar(level.ToString())) // if you have more than 9 levels, you have to modify this code to check for more than just the next char after '@'.
+                    if (lineOfText.Equals(level.ToString())) // if you have more than 9 levels, you have to modify this code to check for more than just the next char after '@'.
                     { // if currently-scanned level is same as level we want to load, load it
                         lineOfText = sr.ReadLine();
                         string[] data = lineOfText.Split(',');
@@ -248,20 +260,17 @@ namespace SokobanAlexEmard
         {
             e.Graphics.TranslateTransform(0, DRAW_OFFSET_Y);
 
-            for (int i = 0; i < gridSize.Width; i++) // vertical lines
-            {
-                e.Graphics.DrawLine(Pens.Black, i * cellSize.Width + BORDER_SIZE, 0 + BORDER_SIZE, i * cellSize.Width + BORDER_SIZE, ClientRectangle.Bottom + BORDER_SIZE);
-            }
-            for (int i = 0; i < gridSize.Height; i++) // horizontal lines
-            {
-                e.Graphics.DrawLine(Pens.Black, 0 + BORDER_SIZE, i * cellSize.Height + BORDER_SIZE, ClientRectangle.Right + BORDER_SIZE, i * cellSize.Height + BORDER_SIZE);
-            }
 
             // Draw graphics to the screen.
             for (int i = 0; i < gridSize.Width; i++)//col
             {
                 for (int j = 0; j < gridSize.Height; j++)//row
                 {
+                    if (gameData[i, j] == null)
+                    {
+                        continue;
+                    }
+
                     if (gameData[i, j].GetType().Equals(" ")) // fix code to support non-rectangular maps
                     {
                         continue; // skip drawing blank cells. Continue makes it skip over the rest of the code in the loop and go to the next iteration.
@@ -370,7 +379,10 @@ namespace SokobanAlexEmard
             if (hasMoved)
             {
                 Invalidate();
+                movesCounter++;
+                UpdateMovesCounter();
             }
+
         }
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
@@ -514,16 +526,21 @@ namespace SokobanAlexEmard
             GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
             Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
             int saveScore = boxesLeft;
+            int saveMovesCounter = movesCounter;
             for (int i = 0; i < gridSize.Width; i++)
             {
                 for (int j = 0; j < gridSize.Height; j++)
                 {
-                    saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                    if (gameData[i, j] != null)
+                    {
+                        saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                    }
                 }
             }
             savedStateHistory.Push(saveData);
             savedWorkerLocation.Push(saveWorkerLoc);
             savedBoxesLeft.Push(saveScore);
+            movesCounterHistory.Push(saveMovesCounter);
         }
 
         private void UndoMove()
@@ -536,12 +553,17 @@ namespace SokobanAlexEmard
                 {
                     for (int j = 0; j < gridSize.Height; j++)
                     {
-                        gameData[i, j].SetType(savedState[i, j].GetType());
+                        if (savedState[i, j] != null)
+                        {
+                            gameData[i, j].SetType(savedState[i, j].GetType());
+                        }
                     }
                 }
+                movesCounter = movesCounterHistory.Pop();
                 workerLocation = savedWorkerLocation.Pop();
                 boxesLeft = savedBoxesLeft.Pop();
                 UpdateScore();
+                UpdateMovesCounter();
                 Invalidate();
             }
         }
@@ -550,16 +572,21 @@ namespace SokobanAlexEmard
             GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
             Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
             int saveScore = boxesLeft;
+            int saveMovesCounter = movesCounter;
             for (int i = 0; i < gridSize.Width; i++)
             {
                 for (int j = 0; j < gridSize.Height; j++)
                 {
-                    saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                    if (gameData[i, j] != null)
+                    {
+                        saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                    }
                 }
             }
             savedStateRedo.Push(saveData);
             savedWorkerLocRedo.Push(saveWorkerLoc);
             savedBoxesLeftRedo.Push(saveScore);
+            movesCounterRedo.Push(saveMovesCounter);
         }
         private void RedoMove()
         {
@@ -571,18 +598,28 @@ namespace SokobanAlexEmard
                 {
                     for (int j = 0; j < gridSize.Height; j++)
                     {
-                        gameData[i, j].SetType(savedState[i, j].GetType());
+                        if (savedState[i, j] != null)
+                        {
+                            gameData[i, j].SetType(savedState[i, j].GetType());
+                        }
                     }
                 }
                 workerLocation = savedWorkerLocRedo.Pop();
                 boxesLeft = savedBoxesLeftRedo.Pop();
+                movesCounter = movesCounterRedo.Pop();
                 UpdateScore();
+                UpdateMovesCounter();
                 Invalidate();
             }
         }
         private void UpdateScore()
         {
             scoreToolStripStatusLabel.Text = "Boxes Left: " + boxesLeft;
+        }
+
+        private void UpdateMovesCounter()
+        {
+            movesCounterToolStripStatusLabel.Text = "Moves: " + movesCounter;
         }
         private void EndGame(string reason)
         {
@@ -619,6 +656,25 @@ namespace SokobanAlexEmard
                     }
             }
 
+        }
+
+        private void endScreenButton_Click(object sender, EventArgs e)
+        {
+            endScreenTableLayoutPanel.Visible = false;
+            Button b = (Button)sender;
+            switch (b.Tag)
+            {
+                case "mainMenu":
+                    Application.Restart();
+                    break;
+                case "restart":
+                    RestartGame();
+                    break;
+                case "nextLevel":
+                    level++;
+                    RestartGame();
+                    break;
+            }
         }
     }
 }

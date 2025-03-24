@@ -46,6 +46,7 @@
             this.nextLevelButton = new System.Windows.Forms.Button();
             this.endScreenTitleLabel = new System.Windows.Forms.Label();
             this.endScreenLevelNoLabel = new System.Windows.Forms.Label();
+            this.movesCounterToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.endScreenTableLayoutPanel.SuspendLayout();
@@ -120,7 +121,8 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.scoreToolStripStatusLabel});
+            this.scoreToolStripStatusLabel,
+            this.movesCounterToolStripStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(800, 22);
@@ -136,9 +138,8 @@
             // 
             // endScreenTableLayoutPanel
             // 
-            this.endScreenTableLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.endScreenTableLayoutPanel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.endScreenTableLayoutPanel.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.endScreenTableLayoutPanel.ColumnCount = 1;
             this.endScreenTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.endScreenTableLayoutPanel.Controls.Add(this.tableLayoutPanel2, 0, 2);
@@ -163,11 +164,11 @@
             this.tableLayoutPanel2.Controls.Add(this.mainMenuButton, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.restartButton, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.nextLevelButton, 2, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 121);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 122);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(194, 46);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(192, 44);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // mainMenuButton
@@ -178,10 +179,12 @@
             this.mainMenuButton.Location = new System.Drawing.Point(0, 0);
             this.mainMenuButton.Margin = new System.Windows.Forms.Padding(0);
             this.mainMenuButton.Name = "mainMenuButton";
-            this.mainMenuButton.Size = new System.Drawing.Size(64, 46);
+            this.mainMenuButton.Size = new System.Drawing.Size(64, 44);
             this.mainMenuButton.TabIndex = 0;
-            this.mainMenuButton.Text = "mainMenuButton";
+            this.mainMenuButton.Tag = "mainMenu";
+            this.mainMenuButton.Text = "Main Menu";
             this.mainMenuButton.UseVisualStyleBackColor = true;
+            this.mainMenuButton.Click += new System.EventHandler(this.endScreenButton_Click);
             // 
             // restartButton
             // 
@@ -191,23 +194,27 @@
             this.restartButton.Location = new System.Drawing.Point(64, 0);
             this.restartButton.Margin = new System.Windows.Forms.Padding(0);
             this.restartButton.Name = "restartButton";
-            this.restartButton.Size = new System.Drawing.Size(64, 46);
+            this.restartButton.Size = new System.Drawing.Size(63, 44);
             this.restartButton.TabIndex = 0;
-            this.restartButton.Text = "restartButton";
+            this.restartButton.Tag = "restart";
+            this.restartButton.Text = "Retry";
             this.restartButton.UseVisualStyleBackColor = true;
+            this.restartButton.Click += new System.EventHandler(this.endScreenButton_Click);
             // 
             // nextLevelButton
             // 
             this.nextLevelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.nextLevelButton.Location = new System.Drawing.Point(128, 0);
+            this.nextLevelButton.Location = new System.Drawing.Point(127, 0);
             this.nextLevelButton.Margin = new System.Windows.Forms.Padding(0);
             this.nextLevelButton.Name = "nextLevelButton";
-            this.nextLevelButton.Size = new System.Drawing.Size(66, 46);
+            this.nextLevelButton.Size = new System.Drawing.Size(65, 44);
             this.nextLevelButton.TabIndex = 0;
-            this.nextLevelButton.Text = "nextLevelButton";
+            this.nextLevelButton.Tag = "nextLevel";
+            this.nextLevelButton.Text = "Next Level";
             this.nextLevelButton.UseVisualStyleBackColor = true;
+            this.nextLevelButton.Click += new System.EventHandler(this.endScreenButton_Click);
             // 
             // endScreenTitleLabel
             // 
@@ -216,9 +223,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.endScreenTitleLabel.AutoSize = true;
             this.endScreenTitleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.endScreenTitleLabel.Location = new System.Drawing.Point(3, 0);
+            this.endScreenTitleLabel.Location = new System.Drawing.Point(4, 1);
             this.endScreenTitleLabel.Name = "endScreenTitleLabel";
-            this.endScreenTitleLabel.Size = new System.Drawing.Size(194, 59);
+            this.endScreenTitleLabel.Size = new System.Drawing.Size(192, 58);
             this.endScreenTitleLabel.TabIndex = 1;
             this.endScreenTitleLabel.Text = "You Win!";
             this.endScreenTitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -230,13 +237,20 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.endScreenLevelNoLabel.AutoSize = true;
             this.endScreenLevelNoLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.endScreenLevelNoLabel.Location = new System.Drawing.Point(0, 59);
+            this.endScreenLevelNoLabel.Location = new System.Drawing.Point(1, 60);
             this.endScreenLevelNoLabel.Margin = new System.Windows.Forms.Padding(0);
             this.endScreenLevelNoLabel.Name = "endScreenLevelNoLabel";
-            this.endScreenLevelNoLabel.Size = new System.Drawing.Size(200, 59);
+            this.endScreenLevelNoLabel.Size = new System.Drawing.Size(198, 58);
             this.endScreenLevelNoLabel.TabIndex = 1;
             this.endScreenLevelNoLabel.Text = "Level #";
             this.endScreenLevelNoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // movesCounterToolStripStatusLabel
+            // 
+            this.movesCounterToolStripStatusLabel.Name = "movesCounterToolStripStatusLabel";
+            this.movesCounterToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(100, 0, 0, 0);
+            this.movesCounterToolStripStatusLabel.Size = new System.Drawing.Size(188, 17);
+            this.movesCounterToolStripStatusLabel.Text = "Moves Counter";
             // 
             // Form1
             // 
@@ -290,6 +304,7 @@
         private System.Windows.Forms.Button nextLevelButton;
         private System.Windows.Forms.Label endScreenTitleLabel;
         private System.Windows.Forms.Label endScreenLevelNoLabel;
+        private System.Windows.Forms.ToolStripStatusLabel movesCounterToolStripStatusLabel;
     }
 }
 
