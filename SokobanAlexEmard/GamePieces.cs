@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SokobanAlexEmard
 {
-    internal class GamePieces
+    public class GamePieces
     {
         private Point gridPos;
         private string type;

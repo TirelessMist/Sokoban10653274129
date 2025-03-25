@@ -39,6 +39,7 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.scoreToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.movesCounterToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.endScreenTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.mainMenuButton = new System.Windows.Forms.Button();
@@ -46,7 +47,7 @@
             this.nextLevelButton = new System.Windows.Forms.Button();
             this.endScreenTitleLabel = new System.Windows.Forms.Label();
             this.endScreenLevelNoLabel = new System.Windows.Forms.Label();
-            this.movesCounterToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.endScreenTableLayoutPanel.SuspendLayout();
@@ -59,7 +60,8 @@
             this.fileToolStripMenuItem,
             this.undoToolStripMenuItem,
             this.redoToolStripMenuItem,
-            this.aboutToolStripMenuItem});
+            this.aboutToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -80,21 +82,21 @@
             // openLevelToolStripMenuItem
             // 
             this.openLevelToolStripMenuItem.Name = "openLevelToolStripMenuItem";
-            this.openLevelToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.openLevelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openLevelToolStripMenuItem.Tag = "openLevel";
             this.openLevelToolStripMenuItem.Text = "Open Level";
             // 
             // restartToolStripMenuItem
             // 
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.restartToolStripMenuItem.Tag = "restart";
             this.restartToolStripMenuItem.Text = "Restart";
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.quitToolStripMenuItem.Tag = "quit";
             this.quitToolStripMenuItem.Text = "Quit";
             // 
@@ -116,6 +118,7 @@
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
+            this.aboutToolStripMenuItem.Tag = "about";
             this.aboutToolStripMenuItem.Text = "About";
             // 
             // statusStrip1
@@ -135,6 +138,13 @@
             this.scoreToolStripStatusLabel.Name = "scoreToolStripStatusLabel";
             this.scoreToolStripStatusLabel.Size = new System.Drawing.Size(227, 17);
             this.scoreToolStripStatusLabel.Text = "Load a level in File > Open Level > Level #";
+            // 
+            // movesCounterToolStripStatusLabel
+            // 
+            this.movesCounterToolStripStatusLabel.Name = "movesCounterToolStripStatusLabel";
+            this.movesCounterToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(100, 0, 0, 0);
+            this.movesCounterToolStripStatusLabel.Size = new System.Drawing.Size(188, 17);
+            this.movesCounterToolStripStatusLabel.Text = "Moves Counter";
             // 
             // endScreenTableLayoutPanel
             // 
@@ -245,12 +255,12 @@
             this.endScreenLevelNoLabel.Text = "Level #";
             this.endScreenLevelNoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // movesCounterToolStripStatusLabel
+            // helpToolStripMenuItem
             // 
-            this.movesCounterToolStripStatusLabel.Name = "movesCounterToolStripStatusLabel";
-            this.movesCounterToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(100, 0, 0, 0);
-            this.movesCounterToolStripStatusLabel.Size = new System.Drawing.Size(188, 17);
-            this.movesCounterToolStripStatusLabel.Text = "Moves Counter";
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Tag = "help";
+            this.helpToolStripMenuItem.Text = "Help";
             // 
             // Form1
             // 
@@ -305,6 +315,7 @@
         private System.Windows.Forms.Label endScreenTitleLabel;
         private System.Windows.Forms.Label endScreenLevelNoLabel;
         private System.Windows.Forms.ToolStripStatusLabel movesCounterToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
     }
 }
 

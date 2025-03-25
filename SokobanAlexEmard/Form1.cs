@@ -33,8 +33,26 @@ namespace SokobanAlexEmard
 {
     public partial class Form1 : Form
     {
-        GamePieces[,] gameData;
-        GamePieces[,] savedState;
+        public struct GameState
+        {
+            public GamePieces[,] GamePieces;
+            public Point WorkerLocation;
+            public int Moves;
+            public int BoxesLeft;
+
+            public GameState()
+            {
+                GamePieces = new GamePieces[0, 0];
+                WorkerLocation = new Point();
+                Moves = 0;
+                BoxesLeft = 0;
+            }
+
+            public GameState(GamePieces GamePieces, Point WorkerLocation, int Moves, int BoxesLeft)
+            {
+
+            }
+        }
 
         int DRAW_OFFSET_Y;
         int BOTTOM_OFFSET_Y;
@@ -46,12 +64,8 @@ namespace SokobanAlexEmard
 
         Bitmap graphics = new Bitmap(typeof(Form1), "SokubanCells.png");
 
-        Point workerLocation = new Point(0, 0);
         int level = 269;
-        int maxLevels = 500;
-        int boxesLeft;
-
-        int movesCounter;
+        int maxLevels = 5;
 
         int imageIndex = -1;
 
@@ -60,21 +74,28 @@ namespace SokobanAlexEmard
         bool isControlDown;
         bool isShiftDown;
 
-        Stack<GamePieces[,]> savedStateHistory = new Stack<GamePieces[,]>(); // first in, last off data structure type
-        Stack<Point> savedWorkerLocation = new Stack<Point>();
-        Stack<int> savedBoxesLeft = new Stack<int>();
-        Stack<int> movesCounterHistory = new Stack<int>();
+        string readmeLines;
 
-        Stack<GamePieces[,]> savedStateRedo = new Stack<GamePieces[,]>();
-        Stack<Point> savedWorkerLocRedo = new Stack<Point>();
-        Stack<int> savedBoxesLeftRedo = new Stack<int>();
-        Stack<int> movesCounterRedo = new Stack<int>();
-
+        GameState currentState = new GameState();
+        Stack<GameState> undoStack = new Stack<GameState>();
+        Stack<GameState> redoStack = new Stack<GameState>();
 
         public Form1()
         {
             InitializeComponent();
             BORDER_SIZE = 100;
+
+            try
+            {
+                StreamReader reader = new StreamReader("../../../readme.md");
+                readmeLines = reader.ReadToEnd();
+                Console.WriteLine("Loaded readme.md");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                throw;
+            }
             foreach (MenuStrip m in this.Controls.OfType<MenuStrip>())
             {
                 DRAW_OFFSET_Y = m.Height;
@@ -127,7 +148,7 @@ namespace SokobanAlexEmard
         private void RestartGame()
         {
             ReadMap();
-            movesCounter = 0;
+            currentState.Moves = 0;
             this.Focus();
         }
 
@@ -157,22 +178,28 @@ namespace SokobanAlexEmard
                             RedoMove();
                             break;
                         }
+                    case "about":
+                        MessageBox.Show(readmeLines);
+                        break;
+                    case "help":
+                        var result = MessageBox.Show("This will open in the default browser", "Help", buttons: MessageBoxButtons.OKCancel);
+                        if (result == DialogResult.OK)
+                        {
+                            Process.Start("explorer", "https://github.com");
+                        }
+                        break;
                 }
             }
         }
 
         private void ReadMap()
         {
-            savedStateHistory.Clear();
-            savedWorkerLocation.Clear();
-            savedBoxesLeft.Clear();
-            savedStateRedo.Clear();
-            savedWorkerLocRedo.Clear();
-            savedBoxesLeftRedo.Clear();
-            movesCounter = 0;
+            undoStack.Clear();
+            redoStack.Clear();
+            currentState.Moves = 0;
             // Read the text file, create and fill the gameData array.
             string lineOfText = null;
-            boxesLeft = 0;
+            currentState.BoxesLeft = 0;
             try
             {
                 StreamReader sr = new StreamReader("../../sokoban_maps.txt");
@@ -188,7 +215,7 @@ namespace SokobanAlexEmard
                         string[] data = lineOfText.Split(',');
                         gridSize.Width = Convert.ToInt16(data[0]);
                         gridSize.Height = Convert.ToInt16(data[1]);
-                        gameData = new GamePieces[gridSize.Width, gridSize.Height];
+                        currentState.GamePieces = new GamePieces[gridSize.Width, gridSize.Height];
 
                         for (int row = 0; row < gridSize.Height; row++)
                         {
@@ -197,10 +224,9 @@ namespace SokobanAlexEmard
                             {
                                 if (lineOfText[col] == 'b' || lineOfText[col] == 'B')
                                 {
-                                    boxesLeft++;
+                                    currentState.BoxesLeft++;
                                 }
                                 SetCell(new Point(col, row), lineOfText[col]);
-                                scoreToolStripStatusLabel.Text = "Score: " + boxesLeft;
                             }
                         }
                     }
@@ -226,33 +252,33 @@ namespace SokobanAlexEmard
             // worker, workerOnDestination, baggage, baggageOnDestination, destination, blank
             if (c.Equals(' '))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, " ");
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, " ");
             }
             else if (c.Equals('#'))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, "wall");
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, "wall");
             }
             else if (c.Equals('w'))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, "worker");
-                workerLocation = point;
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, "worker");
+                currentState.WorkerLocation = point;
             }
             else if (c.Equals('W'))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, "workerOnDestination");
-                workerLocation = point;
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, "workerOnDestination");
+                currentState.WorkerLocation = point;
             }
             else if (c.Equals('b'))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, "baggage");
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, "baggage");
             }
             else if (c.Equals('B'))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, "baggageOnDestination");
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, "baggageOnDestination");
             }
             else if (c.Equals('D'))
             {
-                gameData[point.X, point.Y] = new GamePieces(point, "destination");
+                currentState.GamePieces[point.X, point.Y] = new GamePieces(point, "destination");
             }
         }
 
@@ -266,19 +292,19 @@ namespace SokobanAlexEmard
             {
                 for (int j = 0; j < gridSize.Height; j++)//row
                 {
-                    if (gameData[i, j] == null)
+                    if (currentState.GamePieces[i, j] == null)
                     {
                         continue;
                     }
 
-                    if (gameData[i, j].GetType().Equals(" ")) // fix code to support non-rectangular maps
+                    if (currentState.GamePieces[i, j].GetType().Equals(" ")) // fix code to support non-rectangular maps
                     {
                         continue; // skip drawing blank cells. Continue makes it skip over the rest of the code in the loop and go to the next iteration.
                     }
                     Rectangle destRect = new Rectangle(i * cellSize.Width + BORDER_SIZE, j * cellSize.Height + BORDER_SIZE, cellSize.Width, cellSize.Height);
                     Rectangle srcRect;
 
-                    switch (gameData[i, j].GetType())
+                    switch (currentState.GamePieces[i, j].GetType())
                     {
                         case "wall":
                             {
@@ -379,7 +405,7 @@ namespace SokobanAlexEmard
             if (hasMoved)
             {
                 Invalidate();
-                movesCounter++;
+                currentState.Moves++;
                 UpdateMovesCounter();
             }
 
@@ -400,75 +426,75 @@ namespace SokobanAlexEmard
         {
             SaveForUndo();
             bool validMove = false;
-            int x = workerLocation.X;
-            int y = workerLocation.Y;
+            int x = currentState.WorkerLocation.X;
+            int y = currentState.WorkerLocation.Y;
 
-            if (gameData[x + dirX, y + dirY].GetType() == " ") //if worker is moving to blank, set type to worker
+            if (currentState.GamePieces[x + dirX, y + dirY].GetType() == " ") //if worker is moving to blank, set type to worker
             {
-                gameData[x + dirX, y + dirY].SetType("worker");
+                currentState.GamePieces[x + dirX, y + dirY].SetType("worker");
                 WorkerCameFrom();
-                workerLocation.X += dirX;
-                workerLocation.Y += dirY;
+                currentState.WorkerLocation.X += dirX;
+                currentState.WorkerLocation.Y += dirY;
                 validMove = true;
             }
-            else if (gameData[x + dirX, y + dirY].GetType() == "destination") //if worker is moving to destination, set type to workerOnDestination
+            else if (currentState.GamePieces[x + dirX, y + dirY].GetType() == "destination") //if worker is moving to destination, set type to workerOnDestination
             {
-                gameData[x + dirX, y + dirY].SetType("workerOnDestination");
+                currentState.GamePieces[x + dirX, y + dirY].SetType("workerOnDestination");
                 WorkerCameFrom();
-                workerLocation.X += dirX;
-                workerLocation.Y += dirY;
+                currentState.WorkerLocation.X += dirX;
+                currentState.WorkerLocation.Y += dirY;
                 validMove = true;
             }
-            else if (gameData[x + dirX, y + dirY].GetType() == "baggage")
+            else if (currentState.GamePieces[x + dirX, y + dirY].GetType() == "baggage")
             {
 
                 int bX = x + dirX;
                 int bY = y + dirY;
-                if (gameData[bX + dirX, bY + dirY].GetType() == " ")
+                if (currentState.GamePieces[bX + dirX, bY + dirY].GetType() == " ")
                 {
-                    gameData[x + dirX, y + dirY].SetType("worker");
+                    currentState.GamePieces[x + dirX, y + dirY].SetType("worker");
                     WorkerCameFrom();
                     BaggageCameFrom(bX, bY);
-                    gameData[bX + dirX, bY + dirY].SetType("baggage");
-                    workerLocation.X += dirX;
-                    workerLocation.Y += dirY;
+                    currentState.GamePieces[bX + dirX, bY + dirY].SetType("baggage");
+                    currentState.WorkerLocation.X += dirX;
+                    currentState.WorkerLocation.Y += dirY;
                     validMove = true;
                 }
-                else if (gameData[bX + dirX, bY + dirY].GetType() == "destination")
+                else if (currentState.GamePieces[bX + dirX, bY + dirY].GetType() == "destination")
                 {
-                    gameData[bX, bY].SetType(" ");
-                    gameData[bX + dirX, bY + dirY].SetType(" ");
-                    gameData[x + dirX, y + dirY].SetType("worker");
+                    currentState.GamePieces[bX, bY].SetType(" ");
+                    currentState.GamePieces[bX + dirX, bY + dirY].SetType(" ");
+                    currentState.GamePieces[x + dirX, y + dirY].SetType("worker");
                     WorkerCameFrom();
-                    workerLocation.X += dirX;
-                    workerLocation.Y += dirY;
+                    currentState.WorkerLocation.X += dirX;
+                    currentState.WorkerLocation.Y += dirY;
                     Score();
                     validMove = true;
                 }
 
             }
-            else if (gameData[x + dirX, y + dirY].GetType() == "baggageOnDestination")
+            else if (currentState.GamePieces[x + dirX, y + dirY].GetType() == "baggageOnDestination")
             {
                 int bX = x + dirX;
                 int bY = y + dirY;
-                if (gameData[bX + dirX, bY + dirY].GetType() == " ")
+                if (currentState.GamePieces[bX + dirX, bY + dirY].GetType() == " ")
                 {
-                    gameData[x + dirX, y + dirY].SetType("worker");
+                    currentState.GamePieces[x + dirX, y + dirY].SetType("worker");
                     WorkerCameFrom();
                     BaggageCameFrom(bX, bY);
-                    gameData[bX + dirX, bY + dirY].SetType("baggage");
-                    workerLocation.X += dirX;
-                    workerLocation.Y += dirY;
+                    currentState.GamePieces[bX + dirX, bY + dirY].SetType("baggage");
+                    currentState.WorkerLocation.X += dirX;
+                    currentState.WorkerLocation.Y += dirY;
                     validMove = true;
                 }
-                else if (gameData[bX + dirX, bY + dirY].GetType() == "destination")
+                else if (currentState.GamePieces[bX + dirX, bY + dirY].GetType() == "destination")
                 {
-                    gameData[bX, bY].SetType(" ");
-                    gameData[bX + dirX, bY + dirY].SetType(" ");
-                    gameData[x + dirX, y + dirY].SetType("worker");
+                    currentState.GamePieces[bX, bY].SetType(" ");
+                    currentState.GamePieces[bX + dirX, bY + dirY].SetType(" ");
+                    currentState.GamePieces[x + dirX, y + dirY].SetType("worker");
                     WorkerCameFrom();
-                    workerLocation.X += dirX;
-                    workerLocation.Y += dirY;
+                    currentState.WorkerLocation.X += dirX;
+                    currentState.WorkerLocation.Y += dirY;
                     Score();
                     validMove = true;
                 }
@@ -480,37 +506,37 @@ namespace SokobanAlexEmard
         }
         private void WorkerCameFrom()
         {
-            if (gameData[workerLocation.X, workerLocation.Y].GetType() == "worker") // if worker came from worker
+            if (currentState.GamePieces[currentState.WorkerLocation.X, currentState.WorkerLocation.Y].GetType() == "worker") // if worker came from worker
             {
-                gameData[workerLocation.X, workerLocation.Y].SetType(" ");
+                currentState.GamePieces[currentState.WorkerLocation.X, currentState.WorkerLocation.Y].SetType(" ");
             }
-            else if (gameData[workerLocation.X, workerLocation.Y].GetType() == "workerOnDestination")
+            else if (currentState.GamePieces[currentState.WorkerLocation.X, currentState.WorkerLocation.Y].GetType() == "workerOnDestination")
             {
-                gameData[workerLocation.X, workerLocation.Y].SetType("destination");
+                currentState.GamePieces[currentState.WorkerLocation.X, currentState.WorkerLocation.Y].SetType("destination");
             }
         }
         private void BaggageCameFrom(int bX, int bY)
         {
-            if (gameData[bX, bY].GetType() == "baggage") // if worker came from worker
+            if (currentState.GamePieces[bX, bY].GetType() == "baggage") // if worker came from worker
             {
-                gameData[bX, bY].SetType("worker");
+                currentState.GamePieces[bX, bY].SetType("worker");
             }
-            else if (gameData[bX, bY].GetType() == "baggageOnDestination")
+            else if (currentState.GamePieces[bX, bY].GetType() == "baggageOnDestination")
             {
-                gameData[bX, bY].SetType("workerOnDestination");
+                currentState.GamePieces[bX, bY].SetType("workerOnDestination");
             }
         }
         private void Score()
         {
-            if (boxesLeft - 1 == 0)
+            if (currentState.BoxesLeft - 1 == 0)
             {
-                boxesLeft--;
+                currentState.BoxesLeft--;
                 UpdateScore();
                 EndGame("win");
             }
             else
             {
-                boxesLeft--;
+                currentState.BoxesLeft--;
                 UpdateScore();
             }
             UpdateScore();
@@ -524,20 +550,21 @@ namespace SokobanAlexEmard
         private void SaveForUndo()
         {
             GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
-            Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
-            int saveScore = boxesLeft;
-            int saveMovesCounter = movesCounter;
+            Point saveWorkerLoc = new Point(currentState.WorkerLocation.X, currentState.WorkerLocation.Y);
+            int saveScore = currentState.BoxesLeft;
+            int saveMovesCounter = currentState.Moves;
             for (int i = 0; i < gridSize.Width; i++)
             {
                 for (int j = 0; j < gridSize.Height; j++)
                 {
-                    if (gameData[i, j] != null)
+                    if (currentState.GamePieces[i, j] != null)
                     {
-                        saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                        saveData[i, j] = new GamePieces(currentState.GamePieces[i, j].GridPos, currentState.GamePieces[i, j].Type.ToString());
                     }
                 }
             }
-            savedStateHistory.Push(saveData);
+            GameState pushState = new GameState();
+            undoStack.Push(saveData);
             savedWorkerLocation.Push(saveWorkerLoc);
             savedBoxesLeft.Push(saveScore);
             movesCounterHistory.Push(saveMovesCounter);
@@ -555,13 +582,13 @@ namespace SokobanAlexEmard
                     {
                         if (savedState[i, j] != null)
                         {
-                            gameData[i, j].SetType(savedState[i, j].GetType());
+                            currentState.GamePieces[i, j].SetType(savedState[i, j].GetType());
                         }
                     }
                 }
-                movesCounter = movesCounterHistory.Pop();
-                workerLocation = savedWorkerLocation.Pop();
-                boxesLeft = savedBoxesLeft.Pop();
+                currentState.Moves = movesCounterHistory.Pop();
+                currentState.WorkerLocation = savedWorkerLocation.Pop();
+                currentState.BoxesLeft = savedBoxesLeft.Pop();
                 UpdateScore();
                 UpdateMovesCounter();
                 Invalidate();
@@ -570,16 +597,16 @@ namespace SokobanAlexEmard
         private void SaveForRedo()
         {
             GamePieces[,] saveData = new GamePieces[gridSize.Width, gridSize.Height];
-            Point saveWorkerLoc = new Point(workerLocation.X, workerLocation.Y);
-            int saveScore = boxesLeft;
-            int saveMovesCounter = movesCounter;
+            Point saveWorkerLoc = new Point(currentState.WorkerLocation.X, currentState.WorkerLocation.Y);
+            int saveScore = currentState.BoxesLeft;
+            int saveMovesCounter = currentState.Moves;
             for (int i = 0; i < gridSize.Width; i++)
             {
                 for (int j = 0; j < gridSize.Height; j++)
                 {
-                    if (gameData[i, j] != null)
+                    if (currentState.GamePieces[i, j] != null)
                     {
-                        saveData[i, j] = new GamePieces(gameData[i, j].GridPos, gameData[i, j].Type.ToString());
+                        saveData[i, j] = new GamePieces(currentState.GamePieces[i, j].GridPos, currentState.GamePieces[i, j].Type.ToString());
                     }
                 }
             }
@@ -600,13 +627,13 @@ namespace SokobanAlexEmard
                     {
                         if (savedState[i, j] != null)
                         {
-                            gameData[i, j].SetType(savedState[i, j].GetType());
+                            currentState.GamePieces[i, j].SetType(savedState[i, j].GetType());
                         }
                     }
                 }
-                workerLocation = savedWorkerLocRedo.Pop();
-                boxesLeft = savedBoxesLeftRedo.Pop();
-                movesCounter = movesCounterRedo.Pop();
+                currentState.WorkerLocation = savedWorkerLocRedo.Pop();
+                currentState.BoxesLeft = savedBoxesLeftRedo.Pop();
+                currentState.Moves = movesCounterRedo.Pop();
                 UpdateScore();
                 UpdateMovesCounter();
                 Invalidate();
@@ -614,12 +641,12 @@ namespace SokobanAlexEmard
         }
         private void UpdateScore()
         {
-            scoreToolStripStatusLabel.Text = "Boxes Left: " + boxesLeft;
+            scoreToolStripStatusLabel.Text = "Boxes Left: " + currentState.BoxesLeft;
         }
 
         private void UpdateMovesCounter()
         {
-            movesCounterToolStripStatusLabel.Text = "Moves: " + movesCounter;
+            movesCounterToolStripStatusLabel.Text = "Moves: " + currentState.Moves;
         }
         private void EndGame(string reason)
         {
