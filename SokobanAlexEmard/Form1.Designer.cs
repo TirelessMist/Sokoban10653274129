@@ -37,6 +37,9 @@
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.privacyPolicyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpPageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.scoreToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.movesCounterToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -47,7 +50,6 @@
             this.nextLevelButton = new System.Windows.Forms.Button();
             this.endScreenTitleLabel = new System.Windows.Forms.Label();
             this.endScreenLevelNoLabel = new System.Windows.Forms.Label();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.endScreenTableLayoutPanel.SuspendLayout();
@@ -82,21 +84,21 @@
             // openLevelToolStripMenuItem
             // 
             this.openLevelToolStripMenuItem.Name = "openLevelToolStripMenuItem";
-            this.openLevelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openLevelToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.openLevelToolStripMenuItem.Tag = "openLevel";
             this.openLevelToolStripMenuItem.Text = "Open Level";
             // 
             // restartToolStripMenuItem
             // 
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.restartToolStripMenuItem.Tag = "restart";
             this.restartToolStripMenuItem.Text = "Restart";
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.quitToolStripMenuItem.Tag = "quit";
             this.quitToolStripMenuItem.Text = "Quit";
             // 
@@ -120,6 +122,30 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Tag = "about";
             this.aboutToolStripMenuItem.Text = "About";
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.privacyPolicyToolStripMenuItem,
+            this.helpPageToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Tag = "help";
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // privacyPolicyToolStripMenuItem
+            // 
+            this.privacyPolicyToolStripMenuItem.Name = "privacyPolicyToolStripMenuItem";
+            this.privacyPolicyToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.privacyPolicyToolStripMenuItem.Tag = "privPol";
+            this.privacyPolicyToolStripMenuItem.Text = "Privacy Policy";
+            // 
+            // helpPageToolStripMenuItem
+            // 
+            this.helpPageToolStripMenuItem.Name = "helpPageToolStripMenuItem";
+            this.helpPageToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.helpPageToolStripMenuItem.Tag = "page";
+            this.helpPageToolStripMenuItem.Text = "Help Page";
             // 
             // statusStrip1
             // 
@@ -255,13 +281,6 @@
             this.endScreenLevelNoLabel.Text = "Level #";
             this.endScreenLevelNoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Tag = "help";
-            this.helpToolStripMenuItem.Text = "Help";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -278,7 +297,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "not Form1";
             this.HelpButtonClicked += new System.ComponentModel.CancelEventHandler(this.Form1_HelpButtonClicked);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
@@ -316,6 +335,8 @@
         private System.Windows.Forms.Label endScreenLevelNoLabel;
         private System.Windows.Forms.ToolStripStatusLabel movesCounterToolStripStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem privacyPolicyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpPageToolStripMenuItem;
     }
 }
 
